@@ -14,12 +14,12 @@ class GameViewController: UIViewController {
     @IBOutlet weak var hangmanStateImage: UIImageView!
     @IBOutlet weak var hangmanPhraseLabel: UILabel!
     @IBOutlet weak var phraseGuessTextField: UITextField!
-    @IBOutlet weak var correctButton: UIButton!
     @IBOutlet weak var incorrectGuessesLabel: UILabel!
+    @IBOutlet weak var guessButton: UIButton!
     
     var numIncorrect = 0
 
-    let placeHolderChar: Character = "*"
+    let placeHolderChar: Character = "-"
     var hangmanPhraseString: String = ""
     var incorrectGuessesArray = [Character]()
     
@@ -42,7 +42,8 @@ class GameViewController: UIViewController {
         }
         hangmanPhraseLabel.text = hangmanPhraseText
         print(phrase)
-        correctButton.addTarget(self, action: "guessButtonTap", forControlEvents: .TouchUpInside)
+        guessButton.addTarget(self, action: "guessButtonTap", forControlEvents: .TouchUpInside)
+    
         hangmanStateImage.image = UIImage(named: "hangman1.gif")
         
         
@@ -59,7 +60,7 @@ class GameViewController: UIViewController {
     }
     
     func isLoseState() -> Bool {
-        return numIncorrect >= 6
+        return numIncorrect >= 7
     }
 
     func setHangmanStateImage() {
@@ -88,7 +89,13 @@ class GameViewController: UIViewController {
     }
     
     func incorrectButtonTap () {
-        
+        if let phraseGuessTextFieldContent = phraseGuessTextField.text {
+            if phraseGuessTextFieldContent.isEmpty {
+                return
+            }
+        }
+        let guessChar: Character = (phraseGuessTextField.text?.characters[(phraseGuessTextField.text?.characters.startIndex)!])!
+        updateIncorrectGuesses(guessChar)
     }
     
     func guessButtonTap() {
@@ -96,6 +103,7 @@ class GameViewController: UIViewController {
             if phraseGuessTextFieldContent.isEmpty {
                 return
             }
+            
         }
         let guessChar: Character = (phraseGuessTextField.text?.characters[(phraseGuessTextField.text?.characters.startIndex)!])!
         var tempString = hangmanPhraseLabel.text
