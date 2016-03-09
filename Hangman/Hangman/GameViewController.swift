@@ -16,6 +16,12 @@ class GameViewController: UIViewController {
     @IBOutlet weak var phraseGuessTextField: UITextField!
     @IBOutlet weak var incorrectGuessesLabel: UILabel!
     @IBOutlet weak var guessButton: UIButton!
+    @IBAction func quitGame(sender: AnyObject) {
+        dismissViewControllerAnimated(true, completion: nil)
+    }
+    @IBAction func startOver(sender: AnyObject) {
+        setUpPuzzle(hangmanPhraseString)
+    }
     
     var numIncorrect = 0
 
@@ -23,14 +29,11 @@ class GameViewController: UIViewController {
     var hangmanPhraseString: String = ""
     var incorrectGuessesArray = [Character]()
     
-    override func viewDidLoad() {
-        super.viewDidLoad()
-
-        // Do any additional setup after loading the view.
-        let hangmanPhrases = HangmanPhrases()
-        let phrase = hangmanPhrases.getRandomPhrase()
+    func setUpPuzzle (phrase:String) {
+        numIncorrect = 0
+        incorrectGuessesArray = [Character]()
+        incorrectGuessesLabel.text = "Incorrect guesses: \n"
         hangmanPhraseString = phrase
-        
         var hangmanPhraseText = ""
         for index in phrase.characters.indices {
             if phrase[index] == " " {
@@ -41,10 +44,21 @@ class GameViewController: UIViewController {
             }
         }
         hangmanPhraseLabel.text = hangmanPhraseText
+        hangmanStateImage.image = UIImage(named: "hangman1.gif")
+    }
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+
+        // Do any additional setup after loading the view.
+        let hangmanPhrases = HangmanPhrases()
+        let phrase = hangmanPhrases.getRandomPhrase()
+
+        setUpPuzzle(phrase)
         print(phrase)
         guessButton.addTarget(self, action: "guessButtonTap", forControlEvents: .TouchUpInside)
     
-        hangmanStateImage.image = UIImage(named: "hangman1.gif")
+
         
         
 
