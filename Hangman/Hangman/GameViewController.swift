@@ -29,7 +29,20 @@ class GameViewController: UIViewController {
     var hangmanPhraseString: String = ""
     var incorrectGuessesArray = [Character]()
     
+    var winAlert = UIAlertController(title: "You win!",
+                                     message: "Good job!",
+                                     preferredStyle: UIAlertControllerStyle.Alert)
+
+    
+    var loseAlert = UIAlertController(title: "You lost...",
+                                      message: "LOL you suck",
+                                      preferredStyle: UIAlertControllerStyle.Alert)
+    var invalidInputAlert = UIAlertController(title: "Invalid Input",
+                                              message: "Please only input one letter at a time",
+                                              preferredStyle: UIAlertControllerStyle.Alert)
+    
     func setUpPuzzle (phrase:String) {
+        print(phrase)
         numIncorrect = 0
         incorrectGuessesArray = [Character]()
         incorrectGuessesLabel.text = "Incorrect guesses: \n"
@@ -55,9 +68,22 @@ class GameViewController: UIViewController {
         let phrase = hangmanPhrases.getRandomPhrase()
 
         setUpPuzzle(phrase)
-        print(phrase)
         guessButton.addTarget(self, action: "guessButtonTap", forControlEvents: .TouchUpInside)
-    
+        let newGameAction = UIAlertAction(title: "New game", style: .Default) {
+            (action: UIAlertAction!) in
+            let phrase = hangmanPhrases.getRandomPhrase()
+            self.setUpPuzzle(phrase)
+        }
+        winAlert.addAction(newGameAction)
+        let restartGameAction = UIAlertAction(title: "Try again",  style: .Default) {
+            (action: UIAlertAction!) in self.setUpPuzzle(self.hangmanPhraseString)
+        }
+        loseAlert.addAction(restartGameAction)
+        loseAlert.addAction(newGameAction)
+        let okayAction = UIAlertAction(title: "Ok", style:. Default) {
+            (action: UIAlertAction!) in self.phraseGuessTextField.text = ""
+        }
+        invalidInputAlert.addAction(okayAction)
 
         
         
@@ -74,7 +100,7 @@ class GameViewController: UIViewController {
     }
     
     func isLoseState() -> Bool {
-        return numIncorrect >= 7
+        return numIncorrect >= 6
     }
 
     func setHangmanStateImage() {
@@ -119,7 +145,17 @@ class GameViewController: UIViewController {
             }
             
         }
-        let guessChar: Character = (phraseGuessTextField.text?.characters[(phraseGuessTextField.text?.characters.startIndex)!])!
+        let guessString: String = (phraseGuessTextField.text)!
+        if guessString.characters.count != 1 {
+            presentViewController(invalidInputAlert, animated: true, completion: nil)
+            return
+        }
+        let guessChar: Character = (phraseGuessTextField.text?.uppercaseString.characters[(phraseGuessTextField.text?.characters.startIndex)!])!
+        let validCharSet = NSCharacterSet.letterCharacterSet()
+        if (guessString.rangeOfCharacterFromSet(validCharSet) == nil) {
+            presentViewController(invalidInputAlert, animated: true, completion: nil)
+            return
+        }
         var tempString = hangmanPhraseLabel.text
         if hangmanPhraseString.characters.contains(guessChar) {
             for index in (tempString!.characters.indices) {
@@ -129,6 +165,9 @@ class GameViewController: UIViewController {
                 }
             }
             hangmanPhraseLabel.text = tempString
+            if isWinState() {
+                presentViewController(winAlert, animated: true, completion: nil)
+            }
         }
         else {
             updateIncorrectGuesses(guessChar)
@@ -148,10 +187,11 @@ class GameViewController: UIViewController {
                 incorrectGuessesLabel.text?.append(incorrectGuess)
                 incorrectGuessesLabel.text?.append(Character(" "))
             }
-            if !isLoseState() {
-                setHangmanStateImage()
+            setHangmanStateImage()
+            if isLoseState() {
+                presentViewController(loseAlert, animated: true, completion: nil)
             }
-            
+
         }
     }
     /*
